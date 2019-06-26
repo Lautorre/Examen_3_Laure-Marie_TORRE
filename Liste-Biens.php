@@ -1,6 +1,6 @@
 <?php
-
-$request = 'SELECT * FROM produit';
+require 'PDO.php';
+$request = 'SELECT * FROM logement';
 $response = $bdd->query($request);
 
 $logements = $response->fetchAll(PDO::FETCH_ASSOC);
@@ -8,6 +8,7 @@ $logements = $response->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <?php include ('partials/Header.php'); ?>
 
+    <a href="index.php" class="btn btn-danger btn-sm mb-2">< Retour</a>
     <table class="table">
         <thead>
             <tr>
@@ -26,8 +27,9 @@ $logements = $response->fetchAll(PDO::FETCH_ASSOC);
 
         <tbody>
             <?php 
-            $nomphoto=$logement['name'];
-            foreach($logements as $logement) : ?>
+            
+            foreach($logements as $logement) : 
+            $nomphoto=$logement['photo'];?>
                 <tr>
                     
                     <td><?= $logement['id_logement'] ?></td>
@@ -37,9 +39,10 @@ $logements = $response->fetchAll(PDO::FETCH_ASSOC);
                     <td><?= $logement['cp'] ?></td>
                     <td><?= $logement['surface '] ?></td>
                     <td><?= $logement['prix'] ?></td>
-                    <td><?= $logement['description'] ?></td>
+                    <td><?= $text = $logement['description'];
+                            $newtext = wordwrap( $text, 20 ); ?></td>
                     <td><?= $logement['type'] ?></td>
-                    <td><img src= "uploads/<?=$logement['name']?>"></td>
+                    <td><img src= "uploads/<?=$nomphoto?>" height="100"></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>

@@ -11,7 +11,7 @@ if (!empty($_POST)) {
     }
 
     if(!isset ($_POST['adresse '])) {
-        new Exception('L\adresse est invalide.');
+        new Exception('L\'adresse est invalide.');
     }
 
     if(!isset ($_POST['ville'])) {
@@ -27,7 +27,7 @@ if (!empty($_POST)) {
         new Exception('Le code postal doit être compris entre 1000 et 100000.');
     }
 
-    if(!isset ($_POST['surface '])) {
+    if(!isset ($_POST['surface'])) {
         new Exception('Le surface est invalide.');
     }
     // Il faut vérifier que la surface est un nombre entier (\pas de lettres ni de point ni de virgules\)
@@ -76,7 +76,6 @@ if (!empty($_POST)) {
     }
 
 
-
     // REMPLIR LA TABLE LOGEMENT AVEC LE FORMULAIRE
     $request = 'INSERT INTO logement (titre, adresse, ville, cp, surface, prix, photo, type, description)
                 VALUES (:titre, :adresse, :ville, :cp, :surface, :prix, :photo, :type, :description)';
@@ -96,32 +95,51 @@ if (!empty($_POST)) {
 
     ]);
 
-    // Vérifier que la photo est bien valide
+    // Changer le nom de la photo !
+    $id_logement = $bdd->lastInsertId();
+    $newName = 'logement_' . $id_logement;
     if ($_FILES['photo']['error'] == 0) {
-        // Taille de la photo
-        if ($_FILES['photo']['size'] <= 32000000){
-            // Vérification de l'extension
+
+        // Est-ce que le fichier a une taille correcte
+
+        if ($_FILES['photo']['size'] <= 32000000) {
+            // L'extension est-elle ok ?
             $infosfichier = pathinfo($_FILES['photo']['name']);
             $extension_upload = $infosfichier['extension'];
-            $extensions_autorisees = array('jpg', 'jpeg', 'gif', 'png');
-            
-            if (in_array($extension_upload, $extensions_autorisees)){
-                    // Mettre la photo dans un fichier uploads et le nom dans la base de donnée
-                    move_uploaded_file($_FILES['photo']['tmp_name'], 
-                    'uploads/' . basename($_FILES['photo']['name']));
-                    echo "Le produit a été bien enregistré";
+            $extensions_autorisees = ['jpg', 'jpeg', 'gif', 'png'];
+
+            if (in_array($extension_upload, $extensions_autorisees)) {
+
+                // Changer le nom et stocker l'image dans uploads:
+
+                move_uploaded_file($_FILES['photo']['tmp_name'], 'uploads/' .  $newName . '.' . $extension_upload);
+                echo "L'envoi a bien été effectué !";
+
+                $request = 'UPDATE logement
+                            SET photo = "' . $newName . '.' . $extension_upload . '" 
+                            WHERE id_logement = ' . $id_logement;
+
+                var_dump ($request);
+
+
+                            
+                $bdd->query($request);
+
+                // CHANGER LA TAILLE DE L'IMAGE
+               
             }
         }
     }
 
 
-}
-
+    }
 ?>
 
 <?php include ('Partials/Header.php'); ?>
 
-    <form action="Ajout-Bien.php" method="post" class="form-group mt-3">
+    <a href="index.php" class="btn btn-danger btn-sm mb-2">< Retour</a>
+
+    <form action="Ajout-Bien.php" method="post" class="mt-3" enctype="multipart/form-data">
 
         <!-- Titre du bien -->
         <div class="form-group">
